@@ -20,8 +20,9 @@ def least_squares_numpy(X, Y, n):
 			tn.append(i**n)
 		array.append(tn)
 		A = np.array(array).T
-		sol = la.lstsq(A, Y)[0]
-	return sol
+		sol = la.lstsq(A.copy(), Y)[0]
+	residual = la.norm(np.dot(A,sol) - Y)/la.norm(Y)
+	return sol, residual
 
 def least_squares_mgs(X, Y, n):
 	array = []
@@ -32,10 +33,11 @@ def least_squares_mgs(X, Y, n):
 		array.append(tn)
 		A = np.array(array).T
 
-		(Q,R) = mgs_qr(A)
-		y = Q.T.dot(Y)
+		(Q,R) = mgs_qr(A.copy())
+		y = np.dot(Q.T,Y.copy())
 		sol = la.solve(R, y)
-	return sol
+	residual = la.norm(np.dot(A,sol) - Y)/la.norm(Y)
+	return sol, residual
 
 def least_squares_house(X, Y, n):
 	array = []
@@ -47,10 +49,11 @@ def least_squares_house(X, Y, n):
 
 		A = np.array(array).T
 
-		(Q,R) = house_qr(A)
-		y = Q.T.dot(Y)
+		(Q,R) = house_qr(A.copy())
+		y = np.dot(Q.T,Y.copy())
 		sol = la.solve(R, y)
-	return sol
+	residual = la.norm(np.dot(A,sol) - Y)/la.norm(Y)
+	return sol, residual
 
 def plot_init(X, Y):
 	plt.clf()
@@ -84,7 +87,6 @@ def output_sol(sol):
 	print out
 	for j in range(0, n):
 		print L[j] + " = " + str(sol[n-j-1])
-	print ""
 
 Y = np.genfromtxt("Price_of_Gasoline.txt", delimiter="\n")
 X = np.zeros(len(Y))
@@ -95,23 +97,27 @@ for i in range(len(Y)):
 print "Solution of mgs:"
 plot_init(X, Y)
 for N in range(1,6):
-	sol = least_squares_mgs(np.copy(X),np.copy(Y),N)
+	sol, resi = least_squares_mgs(np.copy(X),np.copy(Y),N)
 	output_sol(sol)
+	print "relative residual(%d): \t%g\n" % (N, resi)
 	draw(X, sol)
 plt.savefig("problem3_d_mgs.png")
 
 print "Solution of house:"
 plot_init(X, Y)
 for N in range(1,6):
-	sol = least_squares_house(np.copy(X),np.copy(Y),N)
+	sol, resi = least_squares_house(np.copy(X),np.copy(Y),N)
 	output_sol(sol)
+	print "relative residual(%d): \t%g\n" % (N, resi)
 	draw(X, sol)
 plt.savefig("problem3_d_house.png")
 
 print "Solution of lstsq:"
 plot_init(X, Y)
 for N in range(1,6):
-	sol = least_squares_numpy(np.copy(X),np.copy(Y),N)
+	sol, resi = least_squares_numpy(np.copy(X),np.copy(Y),N)
 	output_sol(sol)
+	print "relative residual(%d): \t%g\n" % (N, resi)
+
 	draw(X, sol)
 plt.savefig("problem3_d_numpy.png")
