@@ -28,4 +28,6 @@ def house_qr(A):
         H[...] = np.eye(m)
         H[k:,k:] -= beta * np.dot(v,v.T)
         q = np.dot(q,H)
-    return q, np.triu(A)
+    r = np.triu(A)[0:n, :]
+    q = q[:,0:n]
+    return q, r

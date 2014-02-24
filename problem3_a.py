@@ -12,5 +12,4 @@ def mgs_qr(A):
 		q[:, k] = A[:, k] / r[k, k]
 		r[k, k + 1:n] = np.dot(q[:, k], A[:, k + 1:n])
 		A[:, k + 1:n] = A[:, k + 1:n] - np.outer(q[:, k], r[k, k + 1:n])
-
 	return q, r
